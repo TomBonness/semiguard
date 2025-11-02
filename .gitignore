@@ -1,0 +1,47 @@
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+venv/
+env/
+.venv/
+*.egg
+
+# model stuff
+*.pt
+*.pkl
+models/*.json
+models/*.txt
+
+# Data files
+data/*.csv
+data/*.tsv
+data/*.zip
+
+# front end node and angular stuff
+node_modules/
+frontend/dist/
+frontend/.angular/
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# env
+.env
+*.env.local
+
+# Jupyter
+.ipynb_checkpoints/
+
+# test
+.pytest_cache/
+.coverage
+htmlcov/
