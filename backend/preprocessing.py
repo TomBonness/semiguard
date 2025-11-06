@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 import joblib
 import os
 
@@ -50,9 +51,24 @@ def prepare_features(df, scaler_path=None):
     return X, y, scaler
 
 
+def split_data(X, y, test_size=0.2):
+    """Stratified split to keep class ratios the same in both sets."""
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=42, stratify=y
+    )
+
+    print(f"Train: {len(y_train)} samples (pass={sum(y_train==0)}, fail={sum(y_train==1)})")
+    print(f"Test:  {len(y_test)} samples (pass={sum(y_test==0)}, fail={sum(y_test==1)})")
+
+    return X_train, X_test, y_train, y_test
+
+
 if __name__ == '__main__':
     df = load_and_clean('../data/uci-secom.csv')
     X, y, scaler = prepare_features(df, scaler_path='../models/scaler.pkl')
     print(f"\nX shape: {X.shape}")
     print(f"y shape: {y.shape}")
     print(f"Class distribution: pass={sum(y==0)}, fail={sum(y==1)}")
+
+    print()
+    X_train, X_test, y_train, y_test = split_data(X, y)
