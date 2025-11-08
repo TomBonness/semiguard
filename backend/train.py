@@ -4,6 +4,7 @@ from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
 import json
 import os
+from sklearn.metrics import classification_report, confusion_matrix
 
 from preprocessing import load_and_clean, prepare_features, split_data
 from model import DefectClassifier
@@ -80,5 +81,46 @@ def train():
     return model, test_loader, y_test
 
 
+def evaluate(model, test_loader):
+    """Run predictions on test set and print metrics."""
+    model.eval()
+    all_preds = []
+    all_labels = []
+
+    with torch.no_grad():
+        for X_batch, y_batch in test_loader:
+            output = model(X_batch).squeeze()
+            preds = (torch.sigmoid(output) >= 0.5).int()
+            all_preds.extend(preds.numpy())
+            all_labels.extend(y_batch.int().numpy())
+
+    all_preds = np.array(all_preds)
+    all_labels = np.array(all_labels)
+
+    print("\n=== Evaluation Results ===\n")
+    report = classification_report(
+        all_labels, all_preds,
+        target_names=['pass', 'fail']
+    )
+    print(report)
+
+    cm = confusion_matrix(all_labels, all_preds)
+    print(f"Confusion matrix:\n{cm}")
+    # recall on fail class is what matters most here
+    # catching defective wafers is more important than false alarms
+    fail_recall = cm[1][1] / (cm[1][0] + cm[1][1]) if cm[1].sum() > 0 else 0
+    print(f"\nFail recall (most important): {fail_recall:.3f}")
+
+    # save report to file
+    with open('../models/eval_report.txt', 'w') as f:
+        f.write("SECOM Defect Classifier - Evaluation Report\n")
+        f.write("=" * 45 + "\n\n")
+        f.write(report)
+        f.write(f"\nConfusion matrix:\n{cm}\n")
+        f.write(f"\nFail recall: {fail_recall:.3f}\n")
+    print("Report saved to models/eval_report.txt")
+
+
 if __name__ == '__main__':
     model, test_loader, y_test = train()
+    evaluate(model, test_loader)
