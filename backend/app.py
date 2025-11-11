@@ -1,9 +1,11 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import torch
+import numpy as np
 import joblib
 import json
 import logging
+from datetime import datetime
 
 from model import DefectClassifier
 
@@ -48,6 +50,45 @@ def health():
         'model_loaded': model is not None,
         'n_features': metadata['n_features'] if metadata else None
     })
+
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    if model is None:
+        return jsonify({'error': 'model not loaded'}), 503
+
+    data = request.get_json()
+    if not data or 'features' not in data:
+        return jsonify({'error': 'request must include "features" array'}), 400
+
+    features = data['features']
+    expected = metadata['n_features']
+
+    if len(features) != expected:
+        return jsonify({'error': f'expected {expected} features, got {len(features)}'}), 400
+
+    if any(f is None for f in features):
+        return jsonify({'error': 'features cannot contain null values'}), 400
+
+    try:
+        features_array = np.array(features, dtype=np.float64).reshape(1, -1)
+        scaled = scaler.transform(features_array)
+        tensor = torch.FloatTensor(scaled)
+
+        with torch.no_grad():
+            output = model(tensor).squeeze()
+            confidence = torch.sigmoid(output).item()
+
+        prediction = 'fail' if confidence >= 0.5 else 'pass'
+
+        return jsonify({
+            'prediction': prediction,
+            'confidence': round(confidence, 4),
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        logging.error(f"Prediction failed: {e}")
+        return jsonify({'error': 'prediction failed'}), 500
 
 
 @app.errorhandler(404)
