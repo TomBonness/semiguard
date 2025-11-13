@@ -7,7 +7,9 @@ import json
 import logging
 from datetime import datetime
 
+import hashlib
 from model import DefectClassifier
+from database import log_prediction
 
 app = Flask(__name__)
 CORS(app)
@@ -80,10 +82,15 @@ def predict():
             confidence = torch.sigmoid(output).item()
 
         prediction = 'fail' if confidence >= 0.5 else 'pass'
+        conf = round(confidence, 4)
+
+        # hash the input for deduplication tracking
+        input_hash = hashlib.md5(str(features).encode()).hexdigest()[:12]
+        log_prediction(input_hash, prediction, conf)
 
         return jsonify({
             'prediction': prediction,
-            'confidence': round(confidence, 4),
+            'confidence': conf,
             'timestamp': datetime.now().isoformat()
         })
     except Exception as e:
