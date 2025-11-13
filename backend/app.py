@@ -9,7 +9,7 @@ from datetime import datetime
 
 import hashlib
 from model import DefectClassifier
-from database import log_prediction
+from database import log_prediction, get_metrics
 
 app = Flask(__name__)
 CORS(app)
@@ -96,6 +96,11 @@ def predict():
     except Exception as e:
         logging.error(f"Prediction failed: {e}")
         return jsonify({'error': 'prediction failed'}), 500
+
+
+@app.route('/metrics', methods=['GET'])
+def metrics():
+    return jsonify(get_metrics())
 
 
 @app.errorhandler(404)

@@ -46,5 +46,36 @@ def get_recent_predictions(n=50):
     return [dict(row) for row in rows]
 
 
+def get_metrics():
+    conn = get_connection()
+    row = conn.execute('''
+        SELECT
+            COUNT(*) as total,
+            SUM(CASE WHEN prediction = 'pass' THEN 1 ELSE 0 END) as pass_count,
+            SUM(CASE WHEN prediction = 'fail' THEN 1 ELSE 0 END) as fail_count,
+            AVG(confidence) as avg_confidence
+        FROM predictions
+    ''').fetchone()
+
+    # predictions in the last hour
+    per_hour = conn.execute('''
+        SELECT COUNT(*) FROM predictions
+        WHERE timestamp > datetime('now', '-1 hour')
+    ''').fetchone()[0]
+
+    conn.close()
+
+    total = row['total']
+    return {
+        'total_predictions': total,
+        'pass_count': row['pass_count'] or 0,
+        'fail_count': row['fail_count'] or 0,
+        'pass_rate': round((row['pass_count'] or 0) / total, 4) if total > 0 else 0,
+        'fail_rate': round((row['fail_count'] or 0) / total, 4) if total > 0 else 0,
+        'avg_confidence': round(row['avg_confidence'] or 0, 4),
+        'predictions_last_hour': per_hour
+    }
+
+
 # create table on import
 init_db()
