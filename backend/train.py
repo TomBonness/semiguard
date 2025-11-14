@@ -78,6 +78,19 @@ def train():
         json.dump(metadata, f, indent=2)
     print("Metadata saved to models/metadata.json")
 
+    # save per-feature means and stds from training data for drift detection
+    baseline_stats = {
+        'means': X_train.mean(axis=0).tolist(),
+        'stds': X_train.std(axis=0).tolist()
+    }
+    with open('../models/baseline_stats.json', 'w') as f:
+        json.dump(baseline_stats, f)
+    print("Baseline stats saved to models/baseline_stats.json")
+
+    # also save raw training features for KS-test comparisons
+    np.save('../models/train_features.npy', X_train)
+    print("Training features saved to models/train_features.npy")
+
     return model, test_loader, y_test
 
 
