@@ -9,7 +9,7 @@ from datetime import datetime
 
 import hashlib
 from model import DefectClassifier
-from database import log_prediction, get_metrics
+from database import log_prediction, get_metrics, update_actual_label
 
 app = Flask(__name__)
 CORS(app)
@@ -101,6 +101,23 @@ def predict():
 @app.route('/metrics', methods=['GET'])
 def metrics():
     return jsonify(get_metrics())
+
+
+@app.route('/feedback', methods=['POST'])
+def feedback():
+    data = request.get_json()
+    if not data or 'id' not in data or 'actual_label' not in data:
+        return jsonify({'error': 'request must include "id" and "actual_label"'}), 400
+
+    label = data['actual_label']
+    if label not in ('pass', 'fail'):
+        return jsonify({'error': 'actual_label must be "pass" or "fail"'}), 400
+
+    updated = update_actual_label(data['id'], label)
+    if not updated:
+        return jsonify({'error': 'prediction not found'}), 404
+
+    return jsonify({'status': 'updated'})
 
 
 @app.errorhandler(404)

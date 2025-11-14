@@ -77,5 +77,18 @@ def get_metrics():
     }
 
 
+def update_actual_label(prediction_id, actual_label):
+    """Set the ground truth label for a prediction. Returns True if the row existed."""
+    conn = get_connection()
+    cursor = conn.execute(
+        'UPDATE predictions SET actual_label = ? WHERE id = ?',
+        (actual_label, prediction_id)
+    )
+    conn.commit()
+    updated = cursor.rowcount > 0
+    conn.close()
+    return updated
+
+
 # create table on import
 init_db()
