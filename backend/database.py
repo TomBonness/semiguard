@@ -1,4 +1,5 @@
 import sqlite3
+import json
 import os
 from datetime import datetime
 
@@ -20,18 +21,20 @@ def init_db():
             input_hash TEXT,
             prediction TEXT NOT NULL,
             confidence REAL NOT NULL,
-            actual_label TEXT
+            actual_label TEXT,
+            scaled_features TEXT
         )
     ''')
     conn.commit()
     conn.close()
 
 
-def log_prediction(input_hash, prediction, confidence):
+def log_prediction(input_hash, prediction, confidence, scaled_features=None):
     conn = get_connection()
+    features_json = json.dumps(scaled_features) if scaled_features is not None else None
     conn.execute(
-        'INSERT INTO predictions (timestamp, input_hash, prediction, confidence) VALUES (?, ?, ?, ?)',
-        (datetime.now().isoformat(), input_hash, prediction, confidence)
+        'INSERT INTO predictions (timestamp, input_hash, prediction, confidence, scaled_features) VALUES (?, ?, ?, ?, ?)',
+        (datetime.now().isoformat(), input_hash, prediction, confidence, features_json)
     )
     conn.commit()
     conn.close()
@@ -88,6 +91,17 @@ def update_actual_label(prediction_id, actual_label):
     updated = cursor.rowcount > 0
     conn.close()
     return updated
+
+
+def get_recent_features(n=100):
+    """Get scaled feature vectors from the last n predictions for drift detection."""
+    conn = get_connection()
+    rows = conn.execute(
+        'SELECT scaled_features FROM predictions WHERE scaled_features IS NOT NULL ORDER BY id DESC LIMIT ?',
+        (n,)
+    ).fetchall()
+    conn.close()
+    return [json.loads(row['scaled_features']) for row in rows]
 
 
 # create table on import

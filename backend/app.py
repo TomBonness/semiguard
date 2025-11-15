@@ -9,7 +9,8 @@ from datetime import datetime
 
 import hashlib
 from model import DefectClassifier
-from database import log_prediction, get_metrics, update_actual_label
+from database import log_prediction, get_metrics, update_actual_label, get_recent_features
+from drift import detect_drift
 
 app = Flask(__name__)
 CORS(app)
@@ -19,10 +20,11 @@ logging.basicConfig(level=logging.INFO)
 model = None
 scaler = None
 metadata = None
+train_features = None
 
 
 def load_model():
-    global model, scaler, metadata
+    global model, scaler, metadata, train_features
     try:
         with open('../models/metadata.json') as f:
             metadata = json.load(f)
@@ -33,12 +35,15 @@ def load_model():
 
         scaler = joblib.load('../models/scaler.pkl')
 
+        train_features = np.load('../models/train_features.npy')
+
         logging.info(f"Model loaded ({metadata['n_features']} features)")
     except Exception as e:
         logging.warning(f"Could not load model: {e}")
         model = None
         scaler = None
         metadata = None
+        train_features = None
 
 
 # load on startup
@@ -86,7 +91,7 @@ def predict():
 
         # hash the input for deduplication tracking
         input_hash = hashlib.md5(str(features).encode()).hexdigest()[:12]
-        log_prediction(input_hash, prediction, conf)
+        log_prediction(input_hash, prediction, conf, scaled[0].tolist())
 
         return jsonify({
             'prediction': prediction,
@@ -118,6 +123,25 @@ def feedback():
         return jsonify({'error': 'prediction not found'}), 404
 
     return jsonify({'status': 'updated'})
+
+
+@app.route('/drift', methods=['GET'])
+def drift():
+    if train_features is None:
+        return jsonify({'error': 'training baseline not loaded'}), 503
+
+    n = request.args.get('n', 100, type=int)
+    recent = get_recent_features(n)
+
+    if len(recent) < 10:
+        return jsonify({'error': 'need at least 10 predictions to check drift'}), 400
+
+    recent_array = np.array(recent)
+    result = detect_drift(recent_array, train_features)
+    result['samples_compared'] = len(recent)
+    result['timestamp'] = datetime.now().isoformat()
+
+    return jsonify(result)
 
 
 @app.errorhandler(404)
