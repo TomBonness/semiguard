@@ -1,0 +1,17 @@
+<header>
+  <h1>SemiGuard</h1>
+  <span class="subtitle">defect prediction dashboard</span>
+</header>
+
+<div class="layout">
+  <nav class="sidebar">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Dashboard</a>
+    <a routerLink="/predict" routerLinkActive="active">Predict</a>
+    <a routerLink="/drift" routerLinkActive="active">Drift</a>
+    <a routerLink="/history" routerLinkActive="active">History</a>
+  </nav>
+
+  <main>
+    <router-outlet />
+  </main>
+</div>
