@@ -1,0 +1,30 @@
+<div class="dashboard">
+  <h2>Overview</h2>
+
+  @if (loading) {
+    <p class="status">Loading metrics...</p>
+  } @else if (error) {
+    <p class="status error">{{ error }}</p>
+  } @else if (metrics) {
+    <div class="cards">
+      <div class="card">
+        <span class="card-label">Total Predictions</span>
+        <span class="card-value">{{ metrics.total_predictions }}</span>
+      </div>
+      <div class="card">
+        <span class="card-label">Pass Rate</span>
+        <span class="card-value pass">{{ (metrics.pass_rate * 100).toFixed(1) }}%</span>
+      </div>
+      <div class="card">
+        <span class="card-label">Fail Rate</span>
+        <span class="card-value fail">{{ (metrics.fail_rate * 100).toFixed(1) }}%</span>
+      </div>
+      <div class="card">
+        <span class="card-label">Avg Confidence</span>
+        <span class="card-value">{{ (metrics.avg_confidence * 100).toFixed(1) }}%</span>
+      </div>
+    </div>
+  } @else {
+    <p class="status">No predictions yet</p>
+  }
+</div>
