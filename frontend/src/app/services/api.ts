@@ -18,6 +18,10 @@ export class ApiService {
     return this.http.post<any>(`${this.baseUrl}/predict`, { features });
   }
 
+  getPredictions(n: number = 50) {
+    return this.http.get<any[]>(`${this.baseUrl}/predictions?n=${n}`);
+  }
+
   getMetrics() {
     return this.http.get<any>(`${this.baseUrl}/metrics`);
   }

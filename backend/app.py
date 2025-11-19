@@ -9,7 +9,7 @@ from datetime import datetime
 
 import hashlib
 from model import DefectClassifier
-from database import log_prediction, get_metrics, update_actual_label, get_recent_features
+from database import log_prediction, get_metrics, get_recent_predictions, update_actual_label, get_recent_features
 from drift import detect_drift
 
 app = Flask(__name__)
@@ -101,6 +101,16 @@ def predict():
     except Exception as e:
         logging.error(f"Prediction failed: {e}")
         return jsonify({'error': 'prediction failed'}), 500
+
+
+@app.route('/predictions', methods=['GET'])
+def predictions():
+    n = request.args.get('n', 50, type=int)
+    rows = get_recent_predictions(n)
+    # strip out the scaled_features blob, frontend doesn't need it
+    for row in rows:
+        row.pop('scaled_features', None)
+    return jsonify(rows)
 
 
 @app.route('/metrics', methods=['GET'])
