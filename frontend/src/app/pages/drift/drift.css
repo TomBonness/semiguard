@@ -1,0 +1,148 @@
+.drift-page h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.drift-status {
+  background: #e8f5e9;
+  border: 2px solid #4caf50;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.drift-status.drifted {
+  background: #ffebee;
+  border-color: #ef5350;
+}
+
+.indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #4caf50;
+}
+
+.drifted .dot {
+  background: #ef5350;
+}
+
+.indicator .label {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.drift-details {
+  background: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+}
+
+.score-section {
+  margin-bottom: 1rem;
+}
+
+.score-label {
+  font-size: 0.8rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.score-bar {
+  height: 12px;
+  background: #e0e0e0;
+  border-radius: 6px;
+  margin: 0.5rem 0;
+  overflow: hidden;
+}
+
+.score-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50, #ff9800, #ef5350);
+  border-radius: 6px;
+  transition: width 0.3s;
+}
+
+.score-value {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.info-row {
+  display: flex;
+  gap: 2rem;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.drifted-list {
+  background: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+}
+
+.drifted-list h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 0.75rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  text-align: left;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+th {
+  color: #888;
+  font-weight: 500;
+  border-bottom: 1px solid #eee;
+}
+
+td {
+  color: #333;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.refresh-btn {
+  background: #1a1a2e;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.refresh-btn:hover {
+  background: #2a2a4e;
+}
+
+.status {
+  color: #888;
+  font-size: 0.95rem;
+}
+
+.status.error {
+  color: #c62828;
+}

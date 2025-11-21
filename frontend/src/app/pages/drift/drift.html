@@ -1,0 +1,58 @@
+<div class="drift-page">
+  <h2>Drift Detection</h2>
+
+  @if (loading) {
+    <p class="status">Checking for drift...</p>
+  } @else if (error) {
+    <p class="status error">{{ error }}</p>
+  } @else if (driftData) {
+    <div class="drift-status" [class.drifted]="driftData.drift_detected">
+      <div class="indicator">
+        <span class="dot"></span>
+        <span class="label">{{ driftData.drift_detected ? 'Drift Detected' : 'No Drift' }}</span>
+      </div>
+    </div>
+
+    <div class="drift-details">
+      <div class="score-section">
+        <span class="score-label">Drift Score</span>
+        <div class="score-bar">
+          <div class="score-fill" [style.width]="driftPct + '%'"></div>
+        </div>
+        <span class="score-value">{{ driftPct }}% of features drifted</span>
+      </div>
+
+      <div class="info-row">
+        <span>Features tested: {{ driftData.features_tested }}</span>
+        <span>Features drifted: {{ driftData.features_drifted }}</span>
+        <span>Samples compared: {{ driftData.samples_compared }}</span>
+      </div>
+    </div>
+
+    @if (driftData.drifted_features.length > 0) {
+      <div class="drifted-list">
+        <h3>Top Drifted Features</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Feature Index</th>
+              <th>KS Statistic</th>
+              <th>p-value</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (f of driftData.drifted_features; track f.feature_index) {
+              <tr>
+                <td>{{ f.feature_index }}</td>
+                <td>{{ f.ks_statistic }}</td>
+                <td>{{ f.p_value }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <button class="refresh-btn" (click)="fetchDrift()">Refresh</button>
+  }
+</div>
