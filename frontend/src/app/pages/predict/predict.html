@@ -1,0 +1,42 @@
+<div class="predict-page">
+  <h2>Manual Prediction</h2>
+
+  <div class="form-card">
+    <label for="features">Sensor Features (JSON array)</label>
+    <textarea
+      id="features"
+      [(ngModel)]="featuresJson"
+      placeholder='[0.1, 0.5, 1.2, ...]'
+      rows="8"
+    ></textarea>
+
+    <div class="actions">
+      <button class="btn primary" (click)="submitPrediction()" [disabled]="loading || !featuresJson">
+        {{ loading ? 'Predicting...' : 'Predict' }}
+      </button>
+      <button class="btn secondary" (click)="loadSample()" [disabled]="loadingSample">
+        {{ loadingSample ? 'Loading...' : 'Use Sample Data' }}
+      </button>
+    </div>
+
+    @if (error) {
+      <p class="error">{{ error }}</p>
+    }
+  </div>
+
+  @if (result) {
+    <div class="result-card">
+      <h3>Result</h3>
+      <div class="result-row">
+        <span class="result-label">Prediction</span>
+        <span class="badge" [class.pass]="result.prediction === 'pass'" [class.fail]="result.prediction === 'fail'">
+          {{ result.prediction }}
+        </span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Confidence</span>
+        <span class="confidence">{{ (result.confidence * 100).toFixed(1) }}%</span>
+      </div>
+    </div>
+  }
+</div>

@@ -26,6 +26,10 @@ export class ApiService {
     return this.http.get<any>(`${this.baseUrl}/metrics`);
   }
 
+  getSample() {
+    return this.http.get<any>(`${this.baseUrl}/sample`);
+  }
+
   getDrift() {
     return this.http.get<any>(`${this.baseUrl}/drift`);
   }

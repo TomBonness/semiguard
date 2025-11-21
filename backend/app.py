@@ -103,6 +103,20 @@ def predict():
         return jsonify({'error': 'prediction failed'}), 500
 
 
+@app.route('/sample', methods=['GET'])
+def sample():
+    """Return a random row from the dataset for testing."""
+    try:
+        from preprocessing import load_and_clean
+        df = load_and_clean('../data/uci-secom.csv')
+        row = df.sample(1).drop(columns=['Pass/Fail']).iloc[0]
+        # replace any remaining NaN with 0
+        features = row.fillna(0).tolist()
+        return jsonify({'features': features, 'n_features': len(features)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/predictions', methods=['GET'])
 def predictions():
     n = request.args.get('n', 50, type=int)
