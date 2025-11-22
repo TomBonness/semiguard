@@ -14,7 +14,19 @@ from drift import detect_drift
 
 app = Flask(__name__)
 CORS(app)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(message)s',
+    datefmt='%H:%M:%S'
+)
+logger = logging.getLogger(__name__)
+
+
+@app.after_request
+def log_request(response):
+    logger.info(f"{request.method} {request.path} -> {response.status_code}")
+    return response
+
 
 # global model state
 model = None

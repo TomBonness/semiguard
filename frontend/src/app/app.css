@@ -18,6 +18,44 @@ header h1 {
   color: #888;
 }
 
+.spacer {
+  flex: 1;
+}
+
+.api-status {
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #888;
+}
+
+.api-status.connected .status-dot {
+  background: #4caf50;
+}
+
+.api-status.disconnected .status-dot {
+  background: #ef5350;
+}
+
+.api-status.connected {
+  color: #81c784;
+}
+
+.api-status.disconnected {
+  color: #ef9a9a;
+}
+
+.api-status.checking {
+  color: #888;
+}
+
 .layout {
   display: flex;
   min-height: calc(100vh - 60px);

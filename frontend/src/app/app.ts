@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { ApiService } from './services/api';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,20 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {}
+export class App implements OnInit {
+  apiStatus: 'connected' | 'disconnected' | 'checking' = 'checking';
+
+  constructor(private api: ApiService) {}
+
+  ngOnInit() {
+    this.checkConnection();
+  }
+
+  checkConnection() {
+    this.apiStatus = 'checking';
+    this.api.getHealth().subscribe({
+      next: () => this.apiStatus = 'connected',
+      error: () => this.apiStatus = 'disconnected'
+    });
+  }
+}

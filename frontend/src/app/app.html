@@ -1,6 +1,11 @@
 <header>
   <h1>SemiGuard</h1>
   <span class="subtitle">defect prediction dashboard</span>
+  <span class="spacer"></span>
+  <span class="api-status" [class]="apiStatus">
+    <span class="status-dot"></span>
+    {{ apiStatus === 'connected' ? 'API Connected' : apiStatus === 'checking' ? 'Connecting...' : 'API Offline' }}
+  </span>
 </header>
 
 <div class="layout">
