@@ -1,0 +1,49 @@
+<div class="history-page">
+  <h2>Prediction History</h2>
+
+  @if (loading) {
+    <p class="status">Loading predictions...</p>
+  } @else if (error) {
+    <p class="status error">{{ error }}</p>
+  } @else if (predictions.length === 0) {
+    <p class="status">No predictions yet</p>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Timestamp</th>
+            <th>Prediction</th>
+            <th>Confidence</th>
+            <th>Actual Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of predictions; track p.id) {
+            <tr>
+              <td>{{ p.id }}</td>
+              <td>{{ p.timestamp | date:'short' }}</td>
+              <td>
+                <span class="badge" [class.pass]="p.prediction === 'pass'" [class.fail]="p.prediction === 'fail'">
+                  {{ p.prediction }}
+                </span>
+              </td>
+              <td>{{ (p.confidence * 100).toFixed(1) }}%</td>
+              <td>
+                <select
+                  [ngModel]="p.actual_label || 'unknown'"
+                  (ngModelChange)="onFeedbackChange(p, $event)"
+                >
+                  <option value="unknown">--</option>
+                  <option value="pass">Pass</option>
+                  <option value="fail">Fail</option>
+                </select>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
