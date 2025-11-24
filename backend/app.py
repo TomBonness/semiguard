@@ -49,9 +49,9 @@ def load_model():
 
         train_features = np.load('../models/train_features.npy')
 
-        logging.info(f"Model loaded ({metadata['n_features']} features)")
+        logger.info(f"Model loaded ({metadata['n_features']} features)")
     except Exception as e:
-        logging.warning(f"Could not load model: {e}")
+        logger.warning(f"Could not load model: {e}")
         model = None
         scaler = None
         metadata = None
@@ -111,7 +111,7 @@ def predict():
             'timestamp': datetime.now().isoformat()
         })
     except Exception as e:
-        logging.error(f"Prediction failed: {e}")
+        logger.error(f"Prediction failed: {e}")
         return jsonify({'error': 'prediction failed'}), 500
 
 

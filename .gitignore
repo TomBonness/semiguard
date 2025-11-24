@@ -42,6 +42,9 @@ npm-debug.log*
 # Jupyter
 .ipynb_checkpoints/
 
+# database
+*.db
+
 # test
 .pytest_cache/
 .coverage
