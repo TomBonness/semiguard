@@ -1,0 +1,19 @@
+# frontend is deployed separately via amplify
+frontend/
+notebooks/
+data/
+.git/
+.github/
+
+# docs and config not needed in api image
+*.md
+docker-compose.yml
+amplify.yml
+
+# python junk
+**/__pycache__/
+**/*.pyc
+backend/tests/
+backend/venv/
+backend/.pytest_cache/
+backend/predictions.db
