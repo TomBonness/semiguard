@@ -11,6 +11,7 @@ COPY backend/ .
 
 # copy trained model, scaler, metadata, and baseline stats
 COPY models/ /app/models/
+COPY data/ /app/data/
 
 EXPOSE 5050
 
