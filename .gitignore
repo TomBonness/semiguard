@@ -17,7 +17,6 @@ models/*.txt
 *.npy
 
 # Data files
-data/*.csv
 data/*.tsv
 data/*.zip
 
