@@ -1,7 +1,6 @@
 # frontend is deployed separately via amplify
 frontend/
 notebooks/
-data/
 .git/
 .github/
 
