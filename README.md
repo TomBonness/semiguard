@@ -113,7 +113,7 @@ Backend on `:5050`, frontend on `:4200`.
 
 The app is deployed on AWS. Frontend and backend are separate.
 
-### How it's set up
+### Diagram
 
 ```
 +----------------+     push to main     +-------------------+
@@ -141,32 +141,3 @@ The app is deployed on AWS. Frontend and backend are separate.
 - **Domain** is chipguardai.com via Route 53. ACM provides the SSL certs.
 - **CI/CD** is a GitHub Actions workflow that runs pytest, then SSHes into EC2 to pull and rebuild the container.
 
-### GitHub Secrets needed
-
-If you fork this and want to deploy the backend CI/CD, add these secrets to your repo:
-
-| Secret | Description |
-|--------|-------------|
-| `EC2_HOST` | EC2 public IP or hostname |
-| `EC2_USER` | SSH user (usually `ubuntu`) |
-| `EC2_SSH_KEY` | Contents of your .pem private key |
-
-### Deploying from scratch
-
-1. Launch a t3.small EC2 instance (Ubuntu 24.04), install Docker
-2. Clone the repo on EC2, upload model files via scp (they're gitignored)
-3. Build and run: `docker build -f backend/Dockerfile -t semiguard-api . && docker run -d -p 5050:5050 --name semiguard-api semiguard-api`
-4. Set up an ALB with HTTPS (ACM cert) pointing to the EC2 target group on port 5050
-5. Create an Amplify app connected to the GitHub repo
-6. Point your domain to Amplify (frontend) and ALB (api subdomain) via Route 53
-
-### Environment config
-
-The frontend API URL is set in `frontend/src/environments/environment.prod.ts`. Update this to point to your backend's domain before deploying.
-
-## Future stuff
-
-- SMOTE or other oversampling to help with the imbalance
-- Automated retraining pipeline when drift is detected
-- Email/Slack alerts for drift
-- Better feature importance visualization
