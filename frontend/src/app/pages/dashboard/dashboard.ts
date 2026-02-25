@@ -90,8 +90,8 @@ export class Dashboard implements OnInit, OnDestroy {
         // reverse so oldest is first (they come in desc order)
         const sorted = [...rows].reverse();
         const labels = sorted.map((_, i) => `#${i + 1}`);
-        const passConf = sorted.map(r => r.prediction === 'pass' ? r.confidence : null);
-        const failConf = sorted.map(r => r.prediction === 'fail' ? r.confidence : null);
+        const passConf = sorted.map(r => r.prediction === 'pass' ? 1 - r.confidence : null);
+        const failConf = sorted.map(r => r.prediction === 'fail' ? 1 - r.confidence : null);
 
         this.confidenceChartData = {
           labels,

@@ -35,7 +35,7 @@
       </div>
       <div class="result-row">
         <span class="result-label">Confidence</span>
-        <span class="confidence">{{ (result.confidence * 100).toFixed(1) }}%</span>
+        <span class="confidence">{{ ((1 - result.confidence) * 100).toFixed(1) }}%</span>
       </div>
     </div>
   }

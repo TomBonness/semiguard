@@ -29,7 +29,7 @@
                   {{ p.prediction }}
                 </span>
               </td>
-              <td>{{ (p.confidence * 100).toFixed(1) }}%</td>
+              <td>{{ ((1 - p.confidence) * 100).toFixed(1) }}%</td>
               <td>
                 <select
                   [ngModel]="p.actual_label || 'unknown'"

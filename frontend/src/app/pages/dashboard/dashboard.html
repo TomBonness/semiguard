@@ -21,7 +21,7 @@
       </div>
       <div class="card">
         <span class="card-label">Avg Confidence</span>
-        <span class="card-value">{{ (metrics.avg_confidence * 100).toFixed(1) }}%</span>
+        <span class="card-value">{{ ((1 - metrics.avg_confidence) * 100).toFixed(1) }}%</span>
       </div>
     </div>
 
