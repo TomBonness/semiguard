@@ -6,7 +6,7 @@ import json
 import os
 from sklearn.metrics import classification_report, confusion_matrix
 
-from preprocessing import load_and_clean, prepare_features, split_data
+from preprocessing import load_and_clean, prepare_features, split_data, apply_smote
 from model import DefectClassifier
 
 
@@ -25,20 +25,29 @@ def make_loaders(X_train, y_train, X_test, y_test, batch_size=64):
 
 
 def train():
+    torch.manual_seed(6)
+    np.random.seed(6)
+
     # load and prep data
     df = load_and_clean('../data/uci-secom.csv')
     X, y, scaler = prepare_features(df, scaler_path='../models/scaler.pkl')
     X_train, X_test, y_train, y_test = split_data(X, y)
 
-    n_features = X_train.shape[1]
-    train_loader, test_loader = make_loaders(X_train, y_train, X_test, y_test)
+    # save pre-SMOTE training data for drift detection baseline
+    # (don't want synthetic samples messing up drift stats)
+    X_train_original = X_train.copy()
 
-    # weight the loss to handle class imbalance
-    # pos_weight = num_negative / num_positive
+    # compute class weight from original imbalance before SMOTE changes the ratio
     n_pos = sum(y_train == 1)
     n_neg = sum(y_train == 0)
     pos_weight = torch.tensor([n_neg / n_pos])
-    print(f"\npos_weight: {pos_weight.item():.2f} (compensating for {n_neg}:{n_pos} imbalance)")
+    print(f"\npos_weight: {pos_weight.item():.2f} (from original {n_neg}:{n_pos} ratio)")
+
+    # oversample fail class so the model sees balanced data
+    X_train, y_train = apply_smote(X_train, y_train)
+
+    n_features = X_train.shape[1]
+    train_loader, test_loader = make_loaders(X_train, y_train, X_test, y_test)
 
     model = DefectClassifier(n_features)
     criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
@@ -71,30 +80,33 @@ def train():
         'epochs': epochs,
         'learning_rate': 0.001,
         'pos_weight': pos_weight.item(),
+        'smote': True,
         'train_samples': len(y_train),
+        'train_samples_original': len(X_train_original),
         'test_samples': len(y_test)
     }
     with open('../models/metadata.json', 'w') as f:
         json.dump(metadata, f, indent=2)
     print("Metadata saved to models/metadata.json")
 
-    # save per-feature means and stds from training data for drift detection
+    # save per-feature means and stds from ORIGINAL training data for drift detection
+    # using pre-SMOTE data so synthetic samples don't skew drift baselines
     baseline_stats = {
-        'means': X_train.mean(axis=0).tolist(),
-        'stds': X_train.std(axis=0).tolist()
+        'means': X_train_original.mean(axis=0).tolist(),
+        'stds': X_train_original.std(axis=0).tolist()
     }
     with open('../models/baseline_stats.json', 'w') as f:
         json.dump(baseline_stats, f)
     print("Baseline stats saved to models/baseline_stats.json")
 
     # also save raw training features for KS-test comparisons
-    np.save('../models/train_features.npy', X_train)
+    np.save('../models/train_features.npy', X_train_original)
     print("Training features saved to models/train_features.npy")
 
     return model, test_loader, y_test
 
 
-def evaluate(model, test_loader):
+def evaluate(model, test_loader, threshold=0.3):
     """Run predictions on test set and print metrics."""
     model.eval()
     all_preds = []
@@ -103,7 +115,7 @@ def evaluate(model, test_loader):
     with torch.no_grad():
         for X_batch, y_batch in test_loader:
             output = model(X_batch).squeeze()
-            preds = (torch.sigmoid(output) >= 0.5).int()
+            preds = (torch.sigmoid(output) >= threshold).int()
             all_preds.extend(preds.numpy())
             all_labels.extend(y_batch.int().numpy())
 
@@ -123,6 +135,7 @@ def evaluate(model, test_loader):
     # catching defective wafers is more important than false alarms
     fail_recall = cm[1][1] / (cm[1][0] + cm[1][1]) if cm[1].sum() > 0 else 0
     print(f"\nFail recall (most important): {fail_recall:.3f}")
+    print(f"Threshold: {threshold}")
 
     # save report to file
     with open('../models/eval_report.txt', 'w') as f:
@@ -131,6 +144,7 @@ def evaluate(model, test_loader):
         f.write(report)
         f.write(f"\nConfusion matrix:\n{cm}\n")
         f.write(f"\nFail recall: {fail_recall:.3f}\n")
+        f.write(f"Threshold: {threshold}\n")
     print("Report saved to models/eval_report.txt")
 
 

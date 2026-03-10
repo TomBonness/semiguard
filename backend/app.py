@@ -98,7 +98,7 @@ def predict():
             output = model(tensor).squeeze()
             confidence = torch.sigmoid(output).item()
 
-        prediction = 'fail' if confidence >= 0.5 else 'pass'
+        prediction = 'fail' if confidence >= 0.3 else 'pass'
         conf = round(confidence if prediction == 'fail' else 1 - confidence, 4)
 
         # hash the input for deduplication tracking

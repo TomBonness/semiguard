@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+from imblearn.over_sampling import SMOTE
 import joblib
 import os
 
@@ -60,6 +61,17 @@ def split_data(X, y, test_size=0.2):
     print(f"Test:  {len(y_test)} samples (pass={sum(y_test==0)}, fail={sum(y_test==1)})")
 
     return X_train, X_test, y_train, y_test
+
+
+def apply_smote(X_train, y_train):
+    """Oversample the minority class (fail) so the model actually learns it."""
+    smote = SMOTE(random_state=42)
+    X_resampled, y_resampled = smote.fit_resample(X_train, y_train)
+
+    print(f"SMOTE: {len(y_train)} -> {len(y_resampled)} training samples")
+    print(f"  pass={sum(y_resampled==0)}, fail={sum(y_resampled==1)}")
+
+    return X_resampled, y_resampled
 
 
 if __name__ == '__main__':
